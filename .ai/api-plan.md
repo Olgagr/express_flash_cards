@@ -82,7 +82,7 @@
     }
     ```
   - **Success Codes:** 200 OK
-  - **Error Codes:** 400 Bad Request (if text exceeds limit), 429 Too Many Requests
+  - **Error Codes:** 400 Bad Request (if text exceeds limit)
 
 - **GET /flashcards/:id**
 
