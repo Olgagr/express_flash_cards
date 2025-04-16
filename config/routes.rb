@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :collections
   # Authentication routes
   resource :session, only: %i[ new create destroy ]
   resource :password, only: %i[ new create edit update ]
