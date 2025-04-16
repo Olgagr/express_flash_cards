@@ -1,15 +1,14 @@
 Rails.application.routes.draw do
-  resources :collections
+  resources :collections do
+    resources :flashcards do
+      collection do
+        post :generate
+      end
+    end
+  end
   # Authentication routes
   resource :session, only: %i[ new create destroy ]
   resource :password, only: %i[ new create edit update ]
-
-  # Flashcards routes
-  resources :flashcards do
-    collection do
-      post :generate
-    end
-  end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

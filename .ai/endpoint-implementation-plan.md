@@ -1,4 +1,4 @@
-# API Endpoint Implementation Plan: POST /flashcards/generate
+# API Endpoint Implementation Plan: POST /collections/{collection_id}/flashcards/generate
 
 ## 1. Przegląd punktu końcowego
 
@@ -7,7 +7,7 @@ Endpoint ma na celu wygenerowanie propozycji fiszek przy użyciu AI. Na podstawi
 ## 2. Szczegóły żądania
 
 - **Metoda HTTP:** POST
-- **Struktura URL:** /flashcards/generate
+- **Struktura URL:** /collections/{collection_id}/flashcards/generate
 - **Parametry:**
 
   - **Wymagane:**
@@ -41,7 +41,7 @@ Endpoint ma na celu wygenerowanie propozycji fiszek przy użyciu AI. Na podstawi
 
 ## 4. Przepływ danych
 
-1. Klient wysyła żądanie POST do `/flashcards/generate` z JSON zawierającym `input_text`.
+1. Klient wysyła żądanie POST do `/collections/{collection_id}/flashcards/generate` z JSON zawierającym `input_text`.
 2. Kontroler (np. `FlashcardsController`) waliduje wejście sprawdzając długość `input_text`.
 3. W przypadku poprawnej walidacji, kontroler wywołuje service object (np. `FlashcardGenerationService`), który przetwarza logikę generowania propozycji.
 4. Service integruje się z modułem AI w celu wygenerowania propozycji fiszek.
@@ -66,7 +66,7 @@ Endpoint ma na celu wygenerowanie propozycji fiszek przy użyciu AI. Na podstawi
 
 ## 8. Etapy wdrożenia
 
-1. Utworzenie nowej akcji `generate` w kontrolerze `FlashcardsController` do obsługi żądania POST na `/flashcards/generate`.
+1. Utworzenie nowej akcji `generate` w kontrolerze `FlashcardsController` do obsługi żądania POST na `/collections/{collection_id}/flashcards/generate`.
 2. Walidacja długości `input_text` (maks. 1000 znaków).
 3. Stworzenie service object (np. `FlashcardGenerationService`) odpowiedzialnego za integrację z modułem AI oraz generowanie propozycji fiszek.
 4. Implementacja logiki wywołania modułu AI wewnątrz service object w postaci mock-a. Nie implementuj prawdziwego request-a do LLM-a.

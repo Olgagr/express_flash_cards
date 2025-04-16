@@ -1,2 +1,12 @@
-<h1>Collections#show</h1>
-<p>Find me in app/views/collections/show.html.erb</p>
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold mb-4"><%= @collection.name %></h1>
+
+  <%# Turbo frame for the list of flashcards %>
+  <%= turbo_frame_tag :flashcards_list do %>
+    <%# Render the flashcards list partial, passing the @flashcards instance variable %>
+    <%= render partial: "flashcards/flashcards_list", locals: { flashcards: @flashcards } %>
+  <% end %>
+
+  <%# Link back to all collections (optional, but good practice) %>
+  <%= link_to "Wróć do kolekcji", collections_path, class: "mt-4 inline-block text-blue-600 hover:underline" %>
+</div>

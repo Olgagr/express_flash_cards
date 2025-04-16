@@ -30,7 +30,30 @@
 
 ### Flashcards
 
-- **POST /flashcards**
+- **GET /collections/{collection_id}/flashcards**
+
+  - **Description:** Get all flashcards from a collection.
+  - **Query Parameters:**
+    - `page` (optional)
+    - `per_page` (optional)
+  - **Response JSON Structure:**
+    ```json
+    [
+      {
+        "id": 1,
+        "front_content": "Question text",
+        "back_content": "Answer text",
+        "flashcard_type": "manual",
+        "collection_id": 1,
+        "created_at": "...",
+        "updated_at": "..."
+      }
+    ]
+    ```
+  - **Success Codes:** 200 OK
+  - **Error Codes:** 401 Unauthorized
+
+- **POST /collections/{collection_id}/flashcards**
 
   - **Description:** Create new flashcards manually.
   - **Request JSON Structure:**
@@ -39,8 +62,7 @@
       {
         "front_content": "Question text",
         "back_content": "Answer text",
-        "flashcard_type": "any flashcard type (manual, ai, edited_ai)",
-        "collection_id": 1
+        "flashcard_type": "any flashcard type (manual, ai, edited_ai)"
       }
     ]
     ```
@@ -61,7 +83,7 @@
   - **Success Codes:** 201 Created
   - **Error Codes:** 400 Bad Request, 422 Unprocessable Entity
 
-- **POST /flashcards/generate**
+- **POST /collections/{collection_id}/flashcards/generate**
 
   - **Description:** Generate flashcard proposals using AI based on input text (max 1000 characters).
   - **Request JSON Structure:**
@@ -84,7 +106,7 @@
   - **Success Codes:** 200 OK
   - **Error Codes:** 400 Bad Request (if text exceeds limit)
 
-- **GET /flashcards/:id**
+- **GET /collections/{collection_id}/flashcards/:id**
 
   - **Description:** Retrieve a specific flashcard by its ID.
   - **Response JSON Structure:**
@@ -101,7 +123,7 @@
   - **Success Codes:** 200 OK
   - **Error Codes:** 401 Unauthorized, 403 Forbidden, 404 Not Found
 
-- **PUT /flashcards/:id**
+- **PUT /collections/{collection_id}/flashcards/:id**
 
   - **Description:** Update an existing flashcard.
   - **Request JSON Structure:**
@@ -109,8 +131,7 @@
     {
       "front_content": "Updated question",
       "back_content": "Updated answer",
-      "flashcard_type": "a valid flashcard type: manual, ai, edited_ai",
-      "collection_id": 1
+      "flashcard_type": "a valid flashcard type: manual, ai, edited_ai"
     }
     ```
   - **Response JSON Structure:**
@@ -120,6 +141,7 @@
       "front_content": "Updated question",
       "back_content": "Updated answer",
       "flashcard_type": "edited_ai",
+      "collection_id": 1,
       "created_at": "...",
       "updated_at": "..."
     }
@@ -127,7 +149,7 @@
   - **Success Codes:** 200 OK
   - **Error Codes:** 400 Bad Request, 422 Unprocessable Entity
 
-- **DELETE /flashcards/:id**
+- **DELETE /collections/{collection_id}/flashcards/:id**
   - **Description:** Delete a specific flashcard.
   - **Response:** No content
   - **Success Codes:** 204 No Content
@@ -255,7 +277,7 @@
 
   - All endpoints validate required fields and proper data types.
   - For flashcards, the `flashcard_type` must be one of "manual", "ai", or "edited_ai" (enforced by database check constraint).
-  - The `/flashcards/generate` endpoint validates that `input_text` does not exceed 1000 characters.
+  - The `/collections/{collection_id}/flashcards/generate` endpoint validates that `input_text` does not exceed 1000 characters.
 
 - **Business Logic:**
 
@@ -271,5 +293,5 @@
     - 403 Forbidden for unauthorized access
     - 404 Not Found for missing resources
     - 422 Unprocessable Entity for validation failures
-  - Rate limiting may be applied to sensitive endpoints (e.g., `/flashcards/generate`) to mitigate abuse.
+  - Rate limiting may be applied to sensitive endpoints (e.g., `/collections/{collection_id}/flashcards/generate`) to mitigate abuse.
   - Database indexes (e.g., on `user_id` and `flashcard_type`) and query parameters ensure efficient performance.

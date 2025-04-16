@@ -32,7 +32,7 @@ Nasza aplikacja składa się z kilku głównych widoków, które współpracują
 
 - **Ekran generowania fiszek przez AI**
 
-  - Ścieżka: `/flashcards/generate`
+  - Ścieżka: `/collections/{collection_id}/flashcards/generate`
   - Główny cel: Pozwolenie użytkownikowi na wygenerowanie propozycji fiszek przez AI na podstawie wprowadzonego tekstu.
   - Kluczowe informacje: Tekst wejściowy (do 1000 znaków), wskaźnik limitów (znaki, liczba propozycji), lista propozycji.
   - Kluczowe komponenty: Pole tekstowe, licznik znaków, przycisk generowania, lista propozycji, możliwość zatwierdzania/edycji każdej propozycji.
@@ -50,7 +50,7 @@ Nasza aplikacja składa się z kilku głównych widoków, które współpracują
 1. Użytkownik trafia na ekran logowania (`/sessions/new`) i wprowadza adres email oraz hasło.
 2. Po zalogowaniu użytkownik zostaje przekierowany do widoku kolekcji (`/collections`), gdzie widzi listę swoich kolekcji.
 3. Użytkownik wybiera kolekcję, co przenosi go do widoku fiszek (`/collections/:id`), gdzie może przeglądać, dodawać, edytować lub usuwać fiszki.
-4. Aby wygenerować nowe fiszki, użytkownik przełącza się na ekran generowania AI (`/flashcards/generate`), gdzie wkleja tekst i otrzymuje propozycje.
+4. Aby wygenerować nowe fiszki, użytkownik przełącza się na ekran generowania AI (`/collections/{collection_id}/flashcards/generate`), gdzie wkleja tekst i otrzymuje propozycje.
 5. Użytkownik zatwierdza wybrane propozycje, które pojawiają się w widoku fiszek.
 6. W trakcie korzystania z aplikacji, modalne formularze umożliwiają edycję i potwierdzenie operacji, takich jak usuwanie zapisanych w kolekcji fiszek i kolekcji.
 7. Komunikaty, spinnery i powiadomienia (toast notifications) informują użytkownika o stanie operacji.

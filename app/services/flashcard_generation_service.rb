@@ -1,7 +1,8 @@
 class FlashcardGenerationService
-  def initialize(input_text, user)
+  def initialize(input_text, user, collection_id)
     @input_text = input_text
     @user = user
+    @collection_id = collection_id
   end
 
   def generate

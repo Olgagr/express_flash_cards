@@ -7,6 +7,13 @@ class CollectionsController < ApplicationController
     @collections = Current.user.collections.order(created_at: :desc)
   end
 
+  # GET /collections/1
+  def show
+    # @collection is set by before_action :set_collection
+    # Fetch flashcards associated with the collection
+    @flashcards = @collection.flashcards.order(created_at: :desc) # Or any desired order
+  end
+
   # GET /collections/new
   def new
     @collection = Collection.new

@@ -6,7 +6,7 @@ class FlashcardsController < ApplicationController
 
   def generate
     # Call service to generate flashcard proposals
-    proposals = FlashcardGenerationService.new(params[:input_text], Current.user).generate
+    proposals = FlashcardGenerationService.new(params[:input_text], Current.user, params[:collection_id]).generate
 
     # Return proposals in the specified format
     render json: { proposals: proposals }

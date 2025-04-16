@@ -1,0 +1,10 @@
+<%# Receives local variable `flashcards` %>
+
+<% if flashcards.present? %>
+  <div class="space-y-4">
+    <%# Iterate over flashcards and render the partial for each %>
+    <%= render partial: "flashcards/flashcard", collection: flashcards, as: :flashcard %>
+  </div>
+<% else %>
+  <p class="text-gray-500 italic">Brak fiszek w tej kolekcji.</p>
+<% end %> 
