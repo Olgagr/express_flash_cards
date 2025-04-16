@@ -23,6 +23,12 @@
   </head>
 
   <body>
-    <%= yield %>
+    <main class="container mx-auto mt-28 px-5">
+      <%= yield %>
+    </main>
+    <turbo-frame id="modal"></turbo-frame>
+    <div id="notifications" class="fixed bottom-0 right-0 z-50 w-full max-w-xs p-4 space-y-4">
+      <%= render "shared/flash" %>
+    </div>
   </body>
 </html>

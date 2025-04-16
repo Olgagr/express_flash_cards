@@ -2,7 +2,7 @@
 
 ## 1. Przegląd struktury UI
 
-Nasza aplikacja składa się z kilku głównych widoków, które współpracują, aby zapewnić użytkownikowi intuicyjne zarządzanie fiszkami oraz kolekcjami, zarówno przy użyciu funkcji ręcznego tworzenia, jak i generowania za pomocą AI. Aplikacja korzysta z modalów do operacji (dodawanie, edycja, usuwanie), a nawigacja jest zaprojektowana tak, aby była responsywna, dostępna (WCAG AA) i bezpieczna. Integracja z Turbo streams umożliwia asynchroniczną synchronizację danych, a użycie RubyUI i TailwindCSS zapewnia spójny wygląd.
+Nasza aplikacja składa się z kilku głównych widoków, które współpracują, aby zapewnić użytkownikowi intuicyjne zarządzanie fiszkami oraz kolekcjami, zarówno przy użyciu funkcji ręcznego tworzenia, jak i generowania za pomocą AI. Aplikacja korzysta z modalów do operacji (dodawanie, edycja, usuwanie), a nawigacja jest zaprojektowana tak, aby była responsywna, dostępna (WCAG AA) i bezpieczna. Integracja z Turbo streams umożliwia asynchroniczną synchronizację danych, a użycie TailwindCSS zapewnia spójny wygląd.
 
 ## 2. Lista widoków
 
@@ -60,7 +60,7 @@ Nasza aplikacja składa się z kilku głównych widoków, które współpracują
 - Główna nawigacja w aplikacji będzie umieszczona na pasku (navbar) zawierającym:
   - Link do widoku kolekcji,
   - Opcję wylogowania.
-- Nawigacja będzie responsywna, wspierana przez TailwindCSS i RubyUI, z uwzględnieniem różnych rozmiarów ekranów oraz standardów dostępności (WCAG AA).
+- Nawigacja będzie responsywna, wspierana przez TailwindCSS, z uwzględnieniem różnych rozmiarów ekranów oraz standardów dostępności (WCAG AA).
 
 ## 5. Kluczowe komponenty
 

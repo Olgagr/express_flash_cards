@@ -1,2 +1,12 @@
-<h1>Collections#index</h1>
-<p>Find me in app/views/collections/index.html.erb</p>
+<div class="flex items-center justify-between pb-4 mb-4 border-b">
+  <h1 class="text-xl font-semibold">Moje Kolekcje</h1>
+  <%= link_to "Nowa kolekcja", new_collection_path, data: { turbo_frame: "modal" }, class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+</div>
+
+<turbo-frame id="collections_list">
+  <%= render @collections %>
+
+  <% if @collections.empty? %>
+    <p id="empty-collections-message" class="text-gray-500">Nie masz jeszcze żadnych kolekcji.</p>
+  <% end %>
+</turbo-frame>

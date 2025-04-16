@@ -1,0 +1,4 @@
+<%# Handle successful update %>
+<%= turbo_stream.replace @collection %> <%# Re-renders the _collection partial for the updated collection %>
+<%= turbo_stream.update "modal", "" %> <%# Clear the modal %>
+<%= turbo_stream.prepend "notifications", partial: "shared/flash", locals: { flash: { notice: "Kolekcja została pomyślnie zaktualizowana." } } %>

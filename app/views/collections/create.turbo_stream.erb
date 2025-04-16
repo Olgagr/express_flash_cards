@@ -1,0 +1,12 @@
+<%# Handle successful creation %>
+<%= turbo_stream.append "collections_list", partial: "collections/collection", locals: { collection: @collection } %>
+<%= turbo_stream.update "modal", "" %> <%# Clear the modal %>
+<%= turbo_stream.prepend "notifications", partial: "shared/flash", locals: { flash: { notice: "Kolekcja została pomyślnie utworzona." } } %>
+
+<%# Remove the 'empty' message if it exists %>
+<%= turbo_stream.remove "empty-collections-message" %>
+
+<%# TODO: Add handling for validation errors (re-render modal) %>
+<%# if @collection.errors.any? %>
+<%#   turbo_stream.update "modal", partial: "collections/form_modal", locals: { collection: @collection } %>
+<%# end %>

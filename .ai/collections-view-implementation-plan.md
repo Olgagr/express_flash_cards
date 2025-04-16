@@ -1,141 +1,165 @@
-# Plan implementacji widoku Kolekcji
+# Plan implementacji widoku Kolekcji (`/collections`)
 
 ## 1. Przegląd
 
-Widok Kolekcji (`/collections`) służy do wyświetlania, tworzenia, edycji i usuwania kolekcji fiszek użytkownika. Interakcje (tworzenie, edycja, usuwanie) odbywają się za pomocą modalnych okien dialogowych (komponenty Ruby UI) i są obsługiwane dynamicznie przez Hotwire (Turbo Streams) w celu aktualizacji listy bez przeładowywania strony.
+Widok `/collections` służy do zarządzania kolekcjami fiszek przez zalogowanego użytkownika. Umożliwia wyświetlanie listy istniejących kolekcji, tworzenie nowych, edytowanie ich nazw oraz usuwanie. Interakcje odbywają się dynamicznie, wykorzystując Hotwire (Turbo Frames, Turbo Streams) do aktualizacji interfejsu bez przeładowywania całej strony, a stylizacja oparta jest na TailwindCSS.
 
 ## 2. Routing widoku
 
-Widok powinien być dostępny pod ścieżką:
-`/collections`
+Widok powinien być dostępny pod standardową ścieżką RESTful dla zasobu `collections`:
 
-## 3. Struktura komponentów
+- **Ścieżka:** `/collections`
+- **Metoda HTTP:** `GET`
+- **Akcja kontrolera:** `CollectionsController#index`
 
-Główna struktura widoku będzie oparta na komponentach Ruby UI i standardowych elementach Rails:
+## 3. Struktura komponentów (widoków częściowych ERB)
 
-app/views/collections/index.html.erb
-├── H1 "Kolekcje"
-├── RubyUI::DialogTrigger (dla przycisku "Nowa kolekcja")
-│ └── RubyUI::Dialog (kontener modala)
-│ └── app/views/collections/form.html.erb (formularz dla nowej kolekcji)
-├── turbo_frame_tag :collections_list (kontener listy kolekcji)
-│ └── app/views/collections/collections.html.erb (renderuje listę)
-│ └── (pętla po @collections)
-│ └── app/views/collections/collection.html.erb (pojedynczy element listy, id: dom_id(collection))
-│ ├── Nazwa kolekcji
-│ ├── RubyUI::DialogTrigger (dla przycisku "Edytuj")
-│ │ └── RubyUI::Dialog (kontener modala)
-│ │ └── app/views/collections/form.html.erb (formularz edycji, z danymi kolekcji)
-│ └── RubyUI::DialogTrigger (dla przycisku "Usuń")
-│ └── RubyUI::Dialog (kontener modala potwierdzenia)
-│ └── app/views/collections/delete_confirmation.html.erb (treść potwierdzenia)
-└── DIV#notifications (kontener na powiadomienia flash)
+```
+app/views/
+└── collections/
+    ├── index.html.erb            # Główny plik widoku listy
+    │   ├── (Opcjonalnie: _header.html.erb) # Nagłówek i przycisk "Nowa kolekcja"
+    │   └── <turbo-frame id="collections_list">
+    │       └── (Zawartość listy - może być w index.html.erb lub _collections_list.html.erb)
+    │           └── _collection.html.erb  # Pojedynczy element listy kolekcji
+    │
+    ├── new.html.erb              # Widok dla akcji 'new' - renderuje zawartość modala
+    │   └── <turbo-frame id="modal">
+    │       └── _form_modal.html.erb
+    │
+    ├── edit.html.erb             # Widok dla akcji 'edit' - renderuje zawartość modala
+    │   └── <turbo-frame id="modal">
+    │       └── _form_modal.html.erb
+    │
+    ├── _form_modal.html.erb      # Formularz tworzenia/edycji kolekcji (wewnątrz modala)
+    │
+    ├── create.turbo_stream.erb   # Odpowiedź Turbo Stream dla akcji 'create'
+    ├── update.turbo_stream.erb   # Odpowiedź Turbo Stream dla akcji 'update'
+    └── destroy.turbo_stream.erb  # (Opcjonalnie) Odpowiedź Turbo Stream dla akcji 'destroy'
+
+app/views/layouts/application.html.erb # Powinien zawierać kontener na modal i powiadomienia
+    <turbo-frame id="modal"></turbo-frame>
+    <div id="notifications"></div>
+```
 
 ## 4. Szczegóły komponentów
 
-### `CollectionsIndexView` (`index.html.erb`)
+### `CollectionsListView` (`index.html.erb`)
 
-- **Opis:** Główny szablon strony. Zawiera tytuł, przycisk do otwarcia modala tworzenia nowej kolekcji oraz ramkę Turbo (`turbo_frame_tag`) do dynamicznego ładowania i aktualizowania listy kolekcji.
-- **Główne elementy:** `h1`, `RubyUI::Button` (opakowany w `RubyUI::DialogTrigger`), `turbo_frame_tag :collections_list`.
-- **Obsługiwane interakcje:** Kliknięcie przycisku "Nowa kolekcja" otwiera modal z formularzem.
-- **Obsługiwana walidacja:** Brak bezpośredniej walidacji; delegowana do formularza w modalu.
-- **Propsy:** Brak.
-
-### `CollectionsList` (`_collections.html.erb` wewnątrz `turbo_frame_tag :collections_list`)
-
-- **Opis:** Partial renderujący listę kolekcji. Iteruje po zmiennej `@collections` i renderuje partial `_collection.html.erb` dla każdego elementu. Jest celem dla operacji Turbo Stream (`append`, `replace`, `remove`).
-- **Główne elementy:** Pętla (`@collections.each`), `render partial: "collections/collection"`.
-- **Obsługiwane interakcje:** Aktualizacje przez Turbo Streams.
+- **Opis:** Główny kontener widoku listy kolekcji. Zawiera nagłówek, przycisk do inicjowania tworzenia nowej kolekcji oraz obszar (Turbo Frame) do dynamicznego wyświetlania listy.
+- **Główne elementy:** `<h1>`, przycisk `link_to "Nowa kolekcja", new_collection_path, data: { turbo_frame: "modal" }`, `<turbo-frame id="collections_list">` ładujący początkową listę.
+- **Obsługiwane interakcje:** Kliknięcie przycisku "Nowa kolekcja".
 - **Obsługiwana walidacja:** Brak.
-- **Propsy:** Otrzymuje lokalną zmienną `collections` (wynik `@collections` z kontrolera).
+- **Propsy:** Przyjmuje `@collections` z kontrolera do początkowego renderowania listy wewnątrz ramki.
 
-### `CollectionItem` (`_collection.html.erb`)
+### `CollectionListComponent` (wewnątrz `<turbo-frame id="collections_list">`)
 
-- **Opis:** Partial reprezentujący pojedynczy wiersz lub kartę kolekcji na liście. Wyświetla nazwę kolekcji oraz przyciski "Edytuj" i "Usuń". Musi mieć unikalne ID (`dom_id(collection)`).
-- **Główne elementy:** Element HTML do wyświetlania `collection.name`, `RubyUI::Button` (jako `RubyUI::DialogTrigger` do edycji), `RubyUI::Button` (jako `RubyUI::DialogTrigger` do usunięcia).
-- **Obsługiwane interakcje:** Kliknięcie "Edytuj" otwiera modal edycji. Kliknięcie "Usuń" otwiera modal potwierdzenia usunięcia.
+- **Opis:** Wyświetla listę kolekcji. Jest opakowany w Turbo Frame, aby umożliwić dynamiczne aktualizacje (dodawanie, usuwanie, odświeżanie elementów).
+- **Główne elementy:** Kontener listy (np. `<ul>`, `<div>`), iteruje po `@collections` renderując partial `_collection.html.erb` dla każdego elementu.
+- **Obsługiwane interakcje:** Brak bezpośrednich (delegacja do elementów listy).
 - **Obsługiwana walidacja:** Brak.
-- **Propsy:** Otrzymuje lokalną zmienną `collection`.
+- **Propsy:** `@collections`.
 
-### `CollectionFormModal` (treść dla `RubyUI::Dialog`, np. w `_form.html.erb`)
+### `CollectionListItemComponent` (`_collection.html.erb`)
 
-- **Opis:** Formularz Rails (`form_with`) do tworzenia lub edycji kolekcji, opakowany w komponenty modalne Ruby UI.
-- **Główne elementy:** `RubyUI::DialogHeader`, `RubyUI::DialogTitle`, `form_with(model: collection, ...)` zawierający `RubyUI::FormField`, `RubyUI::Label`, `RubyUI::Input` (dla `:name`), `RubyUI::FormFieldError` (miejsce na błędy walidacji), `RubyUI::DialogFooter`, `RubyUI::Button` (Submit), `RubyUI::Button` (Anuluj - do zamknięcia modala, może wymagać Stimulusa lub specyficznej obsługi Ruby UI).
-- **Obsługiwane interakcje:** Wysłanie formularza (metody `POST` dla nowej, `PUT`/`PATCH` dla edycji). Kliknięcie "Anuluj" zamyka modal.
+- **Opis:** Reprezentuje pojedynczy wiersz/element na liście kolekcji. Wyświetla nazwę kolekcji oraz przyciski akcji (Edytuj, Usuń). Musi mieć unikalne ID DOM (`dom_id(collection)`) dla targetowania przez Turbo Streams.
+- **Główne elementy:** Kontener elementu (np. `<li>`, `<div>`) z `id: dom_id(collection)`, nazwa kolekcji (`collection.name`), przycisk/link "Edytuj" (`link_to "Edytuj", edit_collection_path(collection), data: { turbo_frame: "modal" }`), przycisk/link "Usuń" (`link_to "Usuń", collection_path(collection), data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć tę kolekcję?" }`).
+- **Obsługiwane interakcje:** Kliknięcie "Edytuj", kliknięcie "Usuń".
+- **Obsługiwana walidacja:** Potwierdzenie usunięcia (`turbo_confirm`).
+- **Propsy:** `collection` (pojedynczy obiekt kolekcji).
+
+### `CollectionFormModalComponent` (`_form_modal.html.erb`)
+
+- **Opis:** Formularz używany do tworzenia i edycji kolekcji, renderowany wewnątrz modala (okna dialogowego) zarządzanego przez Turbo Frame (`id="modal"`).
+- **Główne elementy:** `<%= form_with(model: collection, ...) %>`, pole tekstowe dla nazwy (`form.text_field :name`), przycisk "Zapisz" (`form.submit`), przycisk/link "Anuluj" (może zamykać modal za pomocą JS/Stimulusa lub linkować do tej samej strony czyszcząc ramkę). Wyświetlanie błędów walidacji (`collection.errors`).
+- **Obsługiwane interakcje:** Wprowadzanie tekstu, Submisja formularza, Kliknięcie "Anuluj".
 - **Obsługiwana walidacja:**
-  - Pole `name`: Wymagane (`presence: true` w modelu `Collection`).
-  - Wyświetlanie błędów: Błędy walidacji zwrócone przez serwer (`collection.errors`) są renderowane w obszarze `RubyUI::FormFieldError` za pomocą aktualizacji Turbo Stream. Atrybut `required` w HTML dla podstawowej walidacji przeglądarki.
-- **Propsy:** Otrzymuje lokalną zmienną `collection` (nowy obiekt dla tworzenia, istniejący dla edycji).
-
-### `DeleteConfirmationModal` (treść dla `RubyUI::Dialog`, np. w `_delete_confirmation.html.erb`)
-
-- **Opis:** Modal z pytaniem o potwierdzenie przed usunięciem kolekcji.
-- **Główne elementy:** `RubyUI::DialogHeader`, `RubyUI::DialogTitle`, `RubyUI::DialogDescription` (tekst potwierdzenia), `RubyUI::DialogFooter`, `RubyUI::Button` (Potwierdź - jako `link_to` z `data: { turbo_method: :delete }`), `RubyUI::Button` (Anuluj).
-- **Obsługiwane interakcje:** Kliknięcie "Potwierdź" wysyła żądanie `DELETE`. Kliknięcie "Anuluj" zamyka modal.
-- **Obsługiwana walidacja:** Brak.
-- **Propsy:** Otrzymuje lokalną zmienną `collection` (do zbudowania URL i `dom_id`).
+  - **Frontend:** Atrybut HTML5 `required` na polu nazwy.
+  - **Backend:** Walidacja modelu `Collection` (np. `validates :name, presence: true`). Błędy zwrócone przez kontroler (w `@collection.errors`) są wyświetlane w formularzu po nieudanej próbie zapisu (przez Turbo Stream aktualizujący modal).
+- **Propsy:** `collection` (nowy lub istniejący obiekt kolekcji).
 
 ## 6. Zarządzanie stanem
 
-Zarządzanie stanem jest minimalne po stronie klienta. Główny stan (lista kolekcji) jest zarządzany po stronie serwera (`@collections`). Komponenty Ruby UI (np. `Dialog`) zarządzają swoim wewnętrznym stanem (np. otwarcie/zamknięcie). Hotwire (Turbo Streams) aktualizuje DOM, aby odzwierciedlić zmiany stanu na serwerze.
+Zarządzanie stanem odbywa się głównie po stronie serwera (Rails).
 
-## 7. Integracja API
+- Lista kolekcji (`@collections`) jest ładowana przez kontroler.
+- Stan formularza (wprowadzone dane, błędy walidacji) jest zarządzany przez Rails (`form_with`, `@collection.errors`) i aktualizowany przez Turbo Streams.
+- Widoczność modala jest kontrolowana przez zawartość ramki `<turbo-frame id="modal">`. Pusta ramka oznacza ukryty modal, wypełniona oznacza widoczny.
+- Ewentualne bardziej złożone stany UI (np. animacje modala, obsługa zamykania przez ESC/kliknięcie tła) mogą wymagać prostego kontrolera Stimulus.
 
-Integracja odbywa się poprzez standardowe mechanizmy Rails i Hotwire:
+## 7. Integracja API (Kontroler)
 
-- **`GET /collections`:** Ładowanie widoku `index.html.erb` (Turbo Drive).
-- **`POST /collections`:** Wysłanie formularza tworzenia (`form_with`). Obsługiwane przez `CollectionsController#create`. Odpowiedź Turbo Stream (`create.turbo_stream.erb`) aktualizuje listę i ewentualnie zamyka modal oraz pokazuje powiadomienie. W przypadku błędu (422), odpowiedź Turbo Stream aktualizuje formularz w modalu, pokazując błędy.
-- **`PUT /collections/:id`:** Wysłanie formularza edycji (`form_with`). Obsługiwane przez `CollectionsController#update`. Odpowiedź Turbo Stream (`update.turbo_stream.erb`) aktualizuje element listy, zamyka modal i pokazuje powiadomienie. W przypadku błędu (422), odpowiedź Turbo Stream aktualizuje formularz w modalu.
-- **`DELETE /collections/:id`:** Kliknięcie linku potwierdzającego usunięcie (`link_to` z `data-turbo-method: :delete`). Obsługiwane przez `CollectionsController#destroy`. Odpowiedź Turbo Stream (`destroy.turbo_stream.erb`) usuwa element z listy i pokazuje powiadomienie.
+Integracja odbywa się poprzez standardowe akcje RESTful kontrolera `CollectionsController`:
+
+- **`index`:** Pobiera `@collections = current_user.collections` (wymaga dodania logiki `current_user` i zakreskowania) i renderuje `index.html.erb`.
+- **`new`:** Inicjalizuje `@collection = Collection.new` i renderuje `new.html.erb` (który renderuje `_form_modal.erb` w ramce `modal`).
+- **`create`:** Tworzy nową kolekcję `current_user.collections.build(collection_params)`.
+  - **Sukces:** Odpowiada `create.turbo_stream.erb` (dodaje element do listy, czyści modal, pokazuje powiadomienie).
+  - **Błąd:** Renderuje `create.turbo_stream.erb` (aktualizuje modal z formularzem i błędami).
+- **`edit`:** Znajduje `@collection = current_user.collections.find(params[:id])` i renderuje `edit.html.erb` (który renderuje `_form_modal.erb` w ramce `modal`).
+- **`update`:** Aktualizuje kolekcję `@collection = current_user.collections.find(params[:id])`.
+  - **Sukces:** Odpowiada `update.turbo_stream.erb` (zamienia element na liście, czyści modal, pokazuje powiadomienie).
+  - **Błąd:** Renderuje `update.turbo_stream.erb` (aktualizuje modal z formularzem i błędami).
+- **`destroy`:** Usuwa kolekcję `@collection = current_user.collections.find(params[:id])`.
+  - **Sukces:** Odpowiada `destroy.turbo_stream.erb` (usuwa element z listy, pokazuje powiadomienie) LUB przekierowuje do `collections_path` z powiadomieniem (Turbo Drive obsłuży odświeżenie).
 
 ## 8. Interakcje użytkownika
 
-- **Załadowanie strony:** Użytkownik widzi listę swoich kolekcji.
-- **Kliknięcie "Nowa kolekcja":** Otwiera się modal z pustym formularzem.
-- **Wysłanie formularza "Nowa kolekcja" (poprawne dane):** Modal zamyka się, nowa kolekcja pojawia się na liście (animacja opcjonalna), wyświetla się powiadomienie o sukcesie.
-- **Wysłanie formularza "Nowa kolekcja" (niepoprawne dane):** Modal pozostaje otwarty, pod polem `name` pojawia się komunikat o błędzie.
-- **Kliknięcie "Edytuj" przy kolekcji:** Otwiera się modal z formularzem wypełnionym nazwą danej kolekcji.
-- **Wysłanie formularza "Edytuj" (poprawne dane):** Modal zamyka się, nazwa kolekcji na liście zostaje zaktualizowana, wyświetla się powiadomienie o sukcesie.
-- **Wysłanie formularza "Edytuj" (niepoprawne dane):** Modal pozostaje otwarty, pod polem `name` pojawia się komunikat o błędzie.
-- **Kliknięcie "Usuń" przy kolekcji:** Otwiera się modal z pytaniem o potwierdzenie.
-- **Kliknięcie "Potwierdź usunięcie":** Modal zamyka się, kolekcja znika z listy, wyświetla się powiadomienie o sukcesie.
-- **Kliknięcie "Anuluj" (w dowolnym modalu):** Modal zamyka się bez wprowadzania zmian.
+- **Wyświetlenie listy:** Użytkownik wchodzi na `/collections`. Widzi listę swoich kolekcji.
+- **Rozpoczęcie tworzenia:** Użytkownik klika "Nowa kolekcja". Modal pojawia się z pustym formularzem.
+- **Anulowanie tworzenia/edycji:** Użytkownik klika "Anuluj" w modalu. Modal znika.
+- **Zapisanie nowej kolekcji (poprawnie):** Użytkownik wypełnia nazwę, klika "Zapisz". Modal znika, nowa kolekcja pojawia się na liście, pojawia się komunikat o sukcesie.
+- **Zapisanie nowej kolekcji (błąd walidacji):** Użytkownik nie wypełnia nazwy, klika "Zapisz". Modal pozostaje, formularz wyświetla błąd przy polu nazwy.
+- **Rozpoczęcie edycji:** Użytkownik klika "Edytuj" przy kolekcji. Modal pojawia się z formularzem wypełnionym nazwą tej kolekcji.
+- **Zapisanie edycji (poprawnie):** Użytkownik zmienia nazwę, klika "Zapisz". Modal znika, nazwa kolekcji na liście zostaje zaktualizowana, pojawia się komunikat o sukcesie.
+- **Zapisanie edycji (błąd walidacji):** Użytkownik usuwa nazwę, klika "Zapisz". Modal pozostaje, formularz wyświetla błąd przy polu nazwy.
+- **Usunięcie kolekcji:** Użytkownik klika "Usuń" przy kolekcji. Pojawia się natywne okno dialogowe przeglądarki z pytaniem potwierdzającym.
+- **Potwierdzenie usunięcia:** Użytkownik potwierdza. Kolekcja znika z listy, pojawia się komunikat o sukcesie.
+- **Anulowanie usunięcia:** Użytkownik anuluje. Nic się nie dzieje.
 
 ## 9. Warunki i walidacja
 
-- **Walidacja:** Główna walidacja odbywa się po stronie serwera w modelu `Collection`.
-  - `name`: Musi być obecne (`presence: true`).
-- **Prezentacja błędów:** Błędy są przekazywane z kontrolera do widoku (formularza w modalu) za pomocą odpowiedzi Turbo Stream, która aktualizuje kontener na błędy (`RubyUI::FormFieldError`) pod odpowiednim polem.
-- **Wymagane pola (Frontend):** Pole `name` w formularzu powinno mieć atrybut `required`, aby zapewnić podstawową informację zwrotną w przeglądarce, ale nie zastępuje to walidacji serwerowej.
+- **Obecność nazwy kolekcji:** Wymagane przy tworzeniu i edycji.
+  - **Komponent:** `CollectionFormModalComponent`.
+  - **Weryfikacja:** Atrybut `required` w HTML (frontend), `validates :name, presence: true` w modelu `Collection` (backend).
+  - **Wpływ na UI:** Niewypełnienie pola i próba zapisu skutkuje wyświetleniem komunikatu błędu przy polu w modalu (bez zamykania modala).
+- **Uwierzytelnienie użytkownika:** Wymagane do dostępu do całego widoku i wszystkich akcji.
+  - **Komponent:** Cały widok `/collections` i jego akcje.
+  - **Weryfikacja:** `before_action :authenticate_user!` w kontrolerze.
+  - **Wpływ na UI:** Niezalogowany użytkownik jest przekierowywany na stronę logowania.
+- **Potwierdzenie usunięcia:** Wymagane przed wykonaniem akcji `destroy`.
+  - **Komponent:** `CollectionListItemComponent` (przycisk Usuń).
+  - **Weryfikacja:** Atrybut `data-turbo-confirm` na linku usuwania (frontend).
+  - **Wpływ na UI:** Wyświetlenie okna dialogowego przeglądarki. Akcja jest kontynuowana tylko po potwierdzeniu.
 
 ## 10. Obsługa błędów
 
-- **Błędy walidacji (422 Unprocessable Entity):** Jak opisano powyżej, formularz w modalu jest ponownie renderowany przez Turbo Stream z widocznymi komunikatami błędów.
-- **Rekord nie znaleziony (404 Not Found):** Kontroler powinien przechwycić `ActiveRecord::RecordNotFound` i odpowiedzieć odpowiednim komunikatem (np. przez flash i Turbo Stream lub przekierowanie).
-- **Brak autoryzacji (401 Unauthorized / 403 Forbidden):** System uwierzytelniania (np. Devise) powinien obsłużyć przekierowania do strony logowania.
-- **Błąd serwera (500 Internal Server Error):** Wyświetlana jest standardowa strona błędu 500 Rails.
-- **Powiadomienia (Flash):** Sukcesy i ogólne błędy powinny być komunikowane za pomocą powiadomień flash renderowanych w dedykowanym kontenerze (`#notifications`) za pomocą Turbo Streams. Należy stworzyć partial `app/views/shared/_flash.html.erb`.
+- **Błędy walidacji (422 Unprocessable Entity):** Kontroler (`create`, `update`) renderuje odpowiedź Turbo Stream (`create.turbo_stream.erb` lub `update.turbo_stream.erb`), która aktualizuje zawartość ramki `modal`, ponownie wyświetlając formularz (`_form_modal.html.erb`) wraz z błędami walidacji pobranymi z obiektu `@collection.errors`.
+- **Brak autoryzacji (401 Unauthorized):** Obsługiwane przez mechanizm uwierzytelniania (np. Devise), zazwyczaj przekierowanie do strony logowania.
+- **Zasób nie znaleziony (404 Not Found):** Jeśli użytkownik spróbuje edytować/usunąć nieistniejącą kolekcję, `find` w kontrolerze zgłosi `ActiveRecord::RecordNotFound`, co Rails domyślnie zamieni na odpowiedź 404.
+- **Błędy serwera (5xx Internal Server Error):** Standardowe strony błędów Rails. W przypadku żądań Turbo, mogą wymagać dodatkowej obsługi dla lepszego UX (np. globalny event listener dla `turbo:fetch-request-error`).
+- **Błędy sieciowe:** Turbo może wyświetlić domyślny komunikat. Rozważyć dedykowaną obsługę.
+- **Komunikaty dla użytkownika:** Sukcesy (utworzono, zaktualizowano, usunięto) i potencjalne błędy (inne niż walidacja) powinny być komunikowane za pomocą powiadomień flash, renderowanych w dedykowanym kontenerze `#notifications` za pomocą Turbo Streams. Należy stworzyć partial `app/views/shared/_flash.html.erb`.
 
 ## 11. Kroki implementacji
 
-1.  **Model:** Upewnij się, że model `Collection` ma walidację `validates :name, presence: true`.
-2.  **Kontroler (`CollectionsController`):**
-    - Sprawdź akcje `index`, `new`, `edit`.
-    - Zmodyfikuj akcje `create` i `update`, aby w przypadku błędu walidacji (blok `else`) odpowiadały za pomocą Turbo Stream, renderując ponownie partial formularza (`_form.html.erb`) wewnątrz modala.
-    - Zmodyfikuj akcję `destroy`, aby odpowiadała za pomocą Turbo Stream (`turbo_stream.remove(dom_id(@collection))`) zamiast `redirect_to`. Dodaj renderowanie powiadomienia flash przez Turbo Stream.
-    - Upewnij się, że `collection_params` zezwala na `:name`.
-3.  **Routing:** Sprawdź, czy `resources :collections` jest zdefiniowane w `config/routes.rb`.
+1.  **Kontroler:**
+    - Upewnij się, że `CollectionsController` ma `before_action :authenticate_user!`.
+    - Zmodyfikuj akcje (`index`, `edit`, `update`, `destroy`), aby operowały na kolekcjach bieżącego użytkownika (`current_user.collections...`) zamiast `Collection.all` lub `Collection.find`.
+    - Upewnij się, że akcje `create` i `update` poprawnie obsługują `respond_to` dla formatu `:turbo_stream` w przypadku błędów walidacji (renderowanie strumienia aktualizującego modal).
+    - Zdecyduj o obsłudze `destroy`: przekierowanie (prostsze) czy odpowiedź `:turbo_stream` (bardziej dynamiczne). Zaimplementuj wybraną opcję.
+    - Dodaj obsługę powiadomień flash (`flash[:notice]`, `flash[:alert]`) w akcjach.
+2.  **Model:**
+    - Dodaj walidację `validates :name, presence: true` do modelu `Collection`.
+    - Upewnij się, że model `User` ma relację `has_many :collections`.
+3.  **Routing:**
+    - Sprawdź, czy `resources :collections` jest zdefiniowane w `config/routes.rb`.
 4.  **Widoki:**
-    - Stwórz `app/views/collections/index.html.erb` z tytułem, przyciskiem "Nowa kolekcja" (`RubyUI::DialogTrigger`) i `turbo_frame_tag :collections_list`.
-    - Stwórz partial `app/views/collections/_collections.html.erb` renderujący listę kolekcji (iteracja i renderowanie `_collection.html.erb`).
-    - Stwórz partial `app/views/collections/_collection.html.erb` z nazwą kolekcji, przyciskami "Edytuj" i "Usuń" (oba jako `RubyUI::DialogTrigger`), używając `dom_id(collection)`.
-    - Stwórz partial `app/views/collections/_form.html.erb` z `form_with` i komponentami Ruby UI (`DialogHeader`, `Input`, `Button` itp.). Upewnij się, że formularz poprawnie obsługuje zarówno tworzenie (obiekt `@collection` jest nowy), jak i edycję (obiekt `@collection` istnieje). Dodaj miejsce na wyświetlanie błędów (`collection.errors`).
-    - Stwórz partial `app/views/collections/_delete_confirmation.html.erb` z treścią potwierdzenia i przyciskami Potwierdź (`link_to` z `data-turbo-method: :delete`) i Anuluj.
-    - Stwórz partial `app/views/shared/_flash.html.erb` do renderowania powiadomień. Dodaj kontener `<div id="notifications"></div>` w głównym layoucie aplikacji lub `index.html.erb`.
-5.  **Turbo Streams:**
-    - Stwórz `app/views/collections/create.turbo_stream.erb`: Powinien zawierać `turbo_stream.append` dla nowej kolekcji do `:collections_list`, `turbo_stream.prepend` dla powiadomienia flash oraz akcję zamykającą modal (może wymagać niestandardowego stream action lub Stimulusa). W przypadku błędu, powinien zawierać `turbo_stream.update` dla kontenera formularza w modalu.
-    - Stwórz `app/views/collections/update.turbo_stream.erb`: Powinien zawierać `turbo_stream.replace` dla edytowanej kolekcji, `turbo_stream.prepend` dla powiadomienia flash oraz akcję zamykającą modal. W przypadku błędu, powinien zawierać `turbo_stream.update` dla kontenera formularza w modalu.
-    - Stwórz `app/views/collections/destroy.turbo_stream.erb`: Powinien zawierać `turbo_stream.remove` dla usuwanej kolekcji oraz `turbo_stream.prepend` dla powiadomienia flash.
-6.  **Styling (Opcjonalnie):** Dostosuj wygląd komponentów Ruby UI za pomocą klas Tailwind CSS, jeśli domyślny wygląd wymaga modyfikacji.
-7.  **JavaScript (Minimalnie):** Jeśli zamknięcie modala Ruby UI po udanej operacji Turbo Stream nie działa automatycznie, może być potrzebny prosty kontroler Stimulus lub niestandardowa akcja Turbo Stream do obsługi tego. Sprawdź dokumentację Ruby UI Dialog.
-8.  **Testy:** Napisz testy systemowe (np. używając Capybary), aby zweryfikować pełny przepływ CRUD dla kolekcji, w tym interakcje z modalem i aktualizacje listy przez Turbo Streams.
+    - **Layout:** Dodaj `<turbo-frame id="modal"></turbo-frame>` i `<div id="notifications"></div>` w `app/views/layouts/application.html.erb`. Stwórz partial `app/views/shared/_flash.html.erb` do renderowania powiadomień.
+    - **`index.html.erb`:** Stwórz strukturę widoku z nagłówkiem, przyciskiem "Nowa kolekcja" (linkującym do `new_collection_path` z `data: { turbo_frame: 'modal' }`) i ramką `<turbo-frame id="collections_list">`. Wewnątrz ramki wyrenderuj listę `@collections` używając partial `_collection.html.erb`.
+    - **`_collection.html.erb`:** Stwórz partial dla pojedynczego elementu listy. Użyj `dom_id(collection)` jako ID kontenera. Wyświetl `collection.name`. Dodaj linki "Edytuj" (do `edit_collection_path(collection)` z `data: { turbo_frame: 'modal' }`) i "Usuń" (do `collection_path(collection)` z `data: { turbo_method: :delete, turbo_confirm: '...' }`).
+    - **`_form_modal.html.erb`:** Stwórz partial z formularzem (`form_with model: collection`). Dodaj pole `:name` (z `required: true`), przycisk submit i link/przycisk "Anuluj". Dodaj logikę wyświetlania błędów walidacji (`collection.errors`).
+    - **`new.html.erb` / `edit.html.erb`:** Stwórz te pliki tak, aby renderowały _tylko_ ramkę `<turbo-frame id="modal">` zawierającą partial `_form_modal.html.erb`.
+    - **Turbo Streams (`create.turbo_stream.erb`, `update.turbo_stream.erb`, `destroy.turbo_stream.erb`):** Zaimplementuj logikę Turbo Stream zgodnie z opisem w sekcji 7 (Integracja API), używając `turbo_stream.append`, `turbo_stream.replace`, `turbo_stream.remove`, `turbo_stream.update` do manipulacji listą (`#collections_list`, `dom_id(...)`), modalem (`#modal`) i powiadomieniami (`#notifications`).
+5.  **Styling:** Zastosuj klasy TailwindCSS do wszystkich elementów widoku, aby uzyskać pożądany wygląd, dbając o czytelność i responsywność. Ostyluj modal i powiadomienia.
+6.  **Testowanie:** Przetestuj wszystkie ścieżki interakcji użytkownika, włączając przypadki sukcesu i błędów (walidacja, usuwanie). Sprawdź działanie Turbo Streams i aktualizację UI.

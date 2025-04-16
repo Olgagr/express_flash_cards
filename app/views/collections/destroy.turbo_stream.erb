@@ -1,0 +1,10 @@
+<%# Handle successful deletion %>
+<%= turbo_stream.remove @collection %>
+<%= turbo_stream.prepend "notifications", partial: "shared/flash", locals: { flash: { notice: "Kolekcja została pomyślnie usunięta." } } %>
+
+<%# If the list becomes empty after deletion, show the 'empty' message %>
+<% if current_user.collections.empty? %>
+  <%= turbo_stream.append "collections_list" do %>
+    <p id="empty-collections-message" class="text-gray-500">Nie masz jeszcze żadnych kolekcji.</p>
+  <% end %>
+<% end %> 

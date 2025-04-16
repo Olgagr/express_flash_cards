@@ -1,0 +1,46 @@
+<div class="fixed inset-0 z-10 overflow-y-auto bg-gray-500/50" aria-labelledby="modal-title" role="dialog" aria-modal="true" data-controller="modal" data-action="keydown@window->modal#handleKeydown">
+  <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+    <%# Background overlay, close modal on click %>
+    <%# Keep this link - it allows closing by clicking outside the panel %>
+    <div class="fixed inset-0 transition-opacity" aria-hidden="true" data-action="click->modal#close"></div>
+
+    <%# Prevent background click from closing when clicking inside the panel %>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+    <%# Modal panel %>
+    <div class="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl" data-action="click->modal#preventClose">
+      <h3 class="text-lg font-medium leading-6 text-gray-900" id="modal-title">
+        <%= collection.new_record? ? "Nowa kolekcja" : "Edytuj kolekcję" %>
+      </h3>
+
+      <%= form_with(model: collection, class: "mt-4 space-y-4") do |form| %>
+        <% if form.object.errors.any? %>
+          <div class="p-3 mb-3 text-sm text-red-700 bg-red-100 border border-red-400 rounded" role="alert">
+            <h4 class="font-bold">Popraw następujące błędy:</h4>
+            <ul>
+              <% form.object.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div>
+          <%= form.label :name, "Nazwa", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.text_field :name, required: true, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm #{'border-red-500' if form.object.errors[:name].any?}" %>
+          <% if form.object.errors[:name].any? %>
+            <p class="mt-1 text-sm text-red-600"><%= form.object.errors[:name].to_sentence %></p>
+          <% end %>
+        </div>
+
+        <div class="flex justify-end space-x-3">
+          <%# Button 'Anuluj' - use Stimulus action to close %>
+          <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" data-action="click->modal#close">
+            Anuluj
+          </button>
+          <%= form.submit (collection.new_record? ? "Utwórz" : "Zapisz zmiany"), class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div> 
