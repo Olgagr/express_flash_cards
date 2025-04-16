@@ -1,0 +1,14 @@
+<% level ||= 'error' # Default to error if level is not provided %>
+<% 
+  base_classes = "p-4 border rounded"
+  level_classes = case level.to_s
+                  when 'warning'
+                    "text-yellow-700 border-yellow-300 bg-yellow-50"
+                  else # default to 'error'
+                    "text-red-500 border-red-300 bg-red-50"
+                  end
+%>
+
+<div class="<%= base_classes %> <%= level_classes %>">
+  <%= message %>
+</div> 
