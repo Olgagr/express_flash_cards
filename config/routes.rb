@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   resources :collections do
     resources :flashcards do
       collection do
+        get :generate, action: :new_generate
         post :generate
       end
     end

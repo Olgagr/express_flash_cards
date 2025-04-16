@@ -1,5 +1,11 @@
 <div class="container mx-auto px-4 py-8">
-  <h1 class="text-2xl font-bold mb-4"><%= @collection.name %></h1>
+  <div class="flex justify-between items-center mb-4">
+    <h1 class="text-2xl font-bold"><%= @collection.name %></h1>
+    <div>
+      <%# Link to generate flashcards using AI %>
+      <%= link_to "Generuj fiszki (AI)", generate_collection_flashcards_path(@collection), class: "ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+    </div>
+  </div>
 
   <%# Turbo frame for the list of flashcards %>
   <%= turbo_frame_tag :flashcards_list do %>
@@ -7,6 +13,6 @@
     <%= render partial: "flashcards/flashcards_list", locals: { flashcards: @flashcards } %>
   <% end %>
 
-  <%# Link back to all collections (optional, but good practice) %>
+  <%# Link back to all collections %>
   <%= link_to "Wróć do kolekcji", collections_path, class: "mt-4 inline-block text-blue-600 hover:underline" %>
 </div>

@@ -1,0 +1,11 @@
+<% if proposals.blank? %>
+  <div class="text-gray-500 p-4">Nie wygenerowano żadnych propozycji. Spróbuj ponownie.</div>
+<% else %>
+  <h2 class="text-lg font-semibold mb-3 mt-6">Wygenerowane Propozycje:</h2>
+  <div class="space-y-4">
+    <% proposals.each_with_index do |proposal, index| %>
+      <%# Each proposal will be rendered within its own container, potentially controlled by Stimulus for removal %>
+      <%= render partial: "flashcards/proposal", locals: { proposal: proposal, collection: collection, index: index } %>
+    <% end %>
+  </div>
+<% end %> 

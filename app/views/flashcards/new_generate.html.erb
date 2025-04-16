@@ -1,0 +1,14 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold mb-4">Generuj Fiszki dla Kolekcji: <%= @collection.name %></h1>
+
+  <%# Render the form partial %>
+  <%= render "form", collection: @collection %>
+
+  <%# Turbo Frame for displaying proposals %>
+  <%= turbo_frame_tag "flashcard_proposals" do %>
+    <%# This content will be replaced by the Turbo Stream response %>
+    <%# Optionally, add a placeholder or loading indicator here %>
+  <% end %>
+
+  <%= link_to "Powrót do kolekcji", collection_path(@collection), class: "mt-4 inline-block text-blue-500 hover:underline" %>
+</div> 
