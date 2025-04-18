@@ -1,4 +1,5 @@
 class Flashcard < ApplicationRecord
+  belongs_to :user
   has_many :flashcards_collections, dependent: :destroy
   # A flashcard can belong to many collections through the join table
   has_many :collections, through: :flashcards_collections

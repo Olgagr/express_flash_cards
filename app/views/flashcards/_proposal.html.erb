@@ -1,6 +1,9 @@
-<div data-controller="remove-element">
+<% proposal_id = dom_id(collection, "proposal_#{proposal.object_id}") %>
+<div id="<%= proposal_id %>" data-controller="remove-element">
   <%# Use form_with to potentially save the flashcard later. Pointing to flashcards create path. %>
   <%= form_with(url: collection_flashcards_path(collection), method: :post, scope: :flashcard, html: { class: "p-4 border border-gray-200 rounded-md shadow-sm bg-white" }) do |form| %>
+    <%= form.hidden_field :proposal_dom_id, value: proposal_id %>
+    <%= form.hidden_field :flashcard_type, value: 'ai' %>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       <div>
         <%= form.label :front_content, "Przód", class: "block text-sm font-medium text-gray-700 mb-1" %>

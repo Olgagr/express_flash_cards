@@ -12,7 +12,7 @@ class FlashcardsController < ApplicationController
     end
   end
 
-  before_action :set_collection, only: [ :new_generate, :generate ]
+  before_action :set_collection, only: [ :new_generate, :generate, :create ]
   before_action :validate_input_text, only: :generate
 
   def new_generate
@@ -42,10 +42,42 @@ class FlashcardsController < ApplicationController
     end
   end
 
+  def create
+    # Build the flashcard independently first
+    @flashcard = Flashcard.new(flashcard_params)
+    @flashcard.user = Current.user # Explicitly assign the current user
+
+    respond_to do |format|
+      # Try saving the flashcard
+      if @flashcard.save
+        # If successful, add it to the collection (creates the join table record)
+        @collection.flashcards << @flashcard
+
+        format.turbo_stream do
+          # Remove the proposal card and show success message
+          render turbo_stream: [
+            turbo_stream.remove(params[:flashcard][:proposal_dom_id]),
+            turbo_stream.prepend("notifications", partial: "shared/flash", locals: { flash: { notice: "Fiszka została pomyślnie utworzona." } })
+          ], status: :created
+        end
+        format.json { render json: @flashcard, status: :created }
+      else
+        format.turbo_stream do
+          # Show validation errors (assuming a target frame `flashcard_form_errors` exists)
+          render turbo_stream: turbo_stream.update("notifications",
+                                                    partial: "shared/flash",
+                                                    locals: { flash: { alert: @flashcard.errors.full_messages.to_sentence } }),
+                 status: :unprocessable_entity
+        end
+        format.json { render json: { errors: @flashcard.errors.full_messages }, status: :unprocessable_entity }
+      end
+    end
+  end
+
   private
 
   def set_collection
-    @collection = Collection.find(params[:collection_id])
+    @collection = Current.user.collections.find(params[:collection_id])
     # Add authorization check if needed, e.g., authorize! :read, @collection
   rescue ActiveRecord::RecordNotFound
     redirect_to collections_path, alert: "Collection not found." # Or render a 404 page
@@ -74,5 +106,9 @@ class FlashcardsController < ApplicationController
       return false # Stop the action
     end
     true # Continue if validation passes
+  end
+
+  def flashcard_params
+    params.require(:flashcard).permit(:front_content, :back_content, :flashcard_type)
   end
 end
