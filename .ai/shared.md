@@ -1,0 +1,1 @@
+- Faraday is the HTTP/HTTPS library we use in this project
