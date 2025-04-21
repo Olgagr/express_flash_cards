@@ -1,0 +1,35 @@
+<div class="mx-auto md:w-2/3 w-full">
+  <h1 class="font-bold text-4xl">Zarejestruj się</h1>
+  <%= form_with(model: @user, url: users_path, class: "contents") do |form| %>
+    <% if form.object.errors.any? %>
+      <div id="error_explanation" class="bg-red-50 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <strong class="font-bold"><%= pluralize(form.object.errors.count, "błąd", "błędy") %> uniemożliwiły rejestrację:</strong>
+        <ul>
+          <% form.object.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="my-5">
+      <%= form.label :email_address, "Adres e-mail" %><br>
+      <%= form.email_field :email_address, required: true, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+    </div>
+
+    <div class="my-5">
+      <%= form.label :password, "Hasło" %><br>
+      <%= form.password_field :password, required: true, minlength: 6, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+    </div>
+
+    <div class="my-5">
+      <%= form.label :password_confirmation, "Potwierdź hasło" %><br>
+      <%= form.password_field :password_confirmation, required: true, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+    </div>
+
+    <div class="flex justify-between">
+      <%= form.submit "Zarejestruj się", class: "rounded-lg py-3 px-5 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
+      <%= link_to "Masz już konto? Zaloguj się", new_session_path, class: "text-blue-600 hover:text-blue-800 text-sm" %>
+    </div>
+  <% end %>
+</div> 

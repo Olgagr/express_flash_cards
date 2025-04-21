@@ -1,12 +1,40 @@
-<%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
-<%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %>
+<div class="mx-auto md:w-2/3 w-full">
+  <h1 class="font-bold text-4xl">Zaloguj się</h1>
 
-<%= form_with url: session_path do |form| %>
-  <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address] %><br>
-  <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72 %><br>
-  <div class="flex items-center gap-4">
-    <%= form.submit "Sign in" %>
-    <%= link_to "Forgot password?", new_password_path %>
-  </div>
-<% end %>
+    <%# Display flash messages within the frame if they exist %>
+  <% if flash[:alert] || flash[:notice] %>
+    <div class="my-4">
+      <% if flash[:alert] %>
+        <div class="bg-red-50 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <strong class="font-bold">Błąd:</strong>
+          <span class="block sm:inline"><%= flash[:alert] %></span>
+        </div>
+      <% end %>
+      <%# Notice messages might not be common on login failure, but included for completeness %>
+      <% if flash[:notice] %>
+        <div class="bg-green-50 text-green-700 px-4 py-3 rounded relative" role="alert">
+          <strong class="font-bold">Sukces:</strong>
+          <span class="block sm:inline"><%= flash[:notice] %></span>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= form_with url: session_path, class: "contents" do |form| %>
+    <div class="my-5">
+      <%= form.label :email_address, "Adres e-mail" %><br>
+      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Wpisz swój adres e-mail", value: params[:email_address], class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+    </div>
+
+    <div class="my-5">
+      <%= form.label :password, "Hasło" %><br>
+      <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Wpisz swoje hasło", maxlength: ActiveModel::SecurePassword::MAX_PASSWORD_LENGTH_ALLOWED, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+    </div>
+
+    <div class="flex justify-between">
+      <%= form.submit "Zaloguj się", class: "rounded-lg py-3 px-5 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
+      <%= link_to "Nie pamiętasz hasła?", new_password_path, class: "text-sm text-blue-600 hover:text-blue-800" %>
+    </div>
+  <% end %>
+</div>
 
