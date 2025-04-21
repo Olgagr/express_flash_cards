@@ -27,7 +27,7 @@
 
         <div>
           <%= form.label :name, "Nazwa", class: "block text-sm font-medium text-gray-700" %>
-          <%= form.text_field :name, required: true, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm #{'border-red-500' if form.object.errors[:name].any?}" %>
+          <%= form.text_field :name, required: true, class: "mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 #{'border-red-500' if form.object.errors[:name].any?}" %>
           <% if form.object.errors[:name].any? %>
             <p class="mt-1 text-sm text-red-600"><%= form.object.errors[:name].to_sentence %></p>
           <% end %>
