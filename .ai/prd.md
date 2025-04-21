@@ -40,7 +40,7 @@ Obecnie tworzenie wysokiej jakości fiszek jest pracochłonne i może odstrasza�
 6. System kontroli dostępu i kont użytkowników
 
    - Rejestracja i logowanie dla użytkowników (podstawowe bezpieczeństwo).
-   - Przechowywanie fiszek w obrębie kont (uwierzytelnianie i autoryzacja na poziomie wybranych mechanizmów i dobrych praktyk).
+   - Przechowywanie kolekcji i fiszek w obrębie kont (uwierzytelnianie i autoryzacja na poziomie wybranych mechanizmów i dobrych praktyk).
    - Zabezpieczenia na poziomie wystarczającym w MVP (bez rozszerzonych zabezpieczeń).
 
 7. Zbieranie statystyk
@@ -128,11 +128,12 @@ Obecnie tworzenie wysokiej jakości fiszek jest pracochłonne i może odstrasza�
 
 - ID: US-008  
   Tytuł: Zakładanie konta i logowanie  
-  Opis: Jako nowy użytkownik chcę móc założyć konto, a następnie logować się, aby moje fiszki i kolekcje były bezpiecznie przechowywane i tylko ja miałbym do nich dostęp.  
+  Opis: Jako nowy użytkownik chcę móc założyć konto, a następnie logować się, aby moje fiszki i kolekcje były bezpiecznie przechowywane i tylko ja miałbym do nich dostęp.
   Kryteria akceptacji:
-  - Formularz rejestracji umożliwia wprowadzenie koniecznych danych (np. adresu email, hasła).
-  - System umożliwia logowanie i wylogowywanie.
+  - Formularz rejestracji umożliwia wprowadzenie koniecznych danych (adresu email i hasła) i jest dostępny na dedykowanym ekranie.
+  - System umożliwia logowanie i wylogowywanie. Opcja do wylogowania powinna być zawsze dostępna dla zalogowanych uzytkowników.
   - Tylko zalogowany użytkownik ma dostęp do swoich fiszek i kolekcji.
+  - System autentykacji powinien być realizowany poprzez wbudowaną autentykację dostępną w Rails.
 
 ### 5.4 Korzystanie z algorytmu powtórek
 
