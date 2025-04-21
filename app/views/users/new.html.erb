@@ -14,17 +14,17 @@
 
     <div class="my-5">
       <%= form.label :email_address, "Adres e-mail" %><br>
-      <%= form.email_field :email_address, required: true, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+      <%= form.email_field :email_address, required: true, class: "input-field" %>
     </div>
 
     <div class="my-5">
       <%= form.label :password, "Hasło" %><br>
-      <%= form.password_field :password, required: true, minlength: 6, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+      <%= form.password_field :password, required: true, minlength: 6, class: "input-field" %>
     </div>
 
     <div class="my-5">
       <%= form.label :password_confirmation, "Potwierdź hasło" %><br>
-      <%= form.password_field :password_confirmation, required: true, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+      <%= form.password_field :password_confirmation, required: true, class: "input-field" %>
     </div>
 
     <div class="flex justify-between">
