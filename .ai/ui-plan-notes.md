@@ -1,7 +1,7 @@
 <conversation_summary>
 <decisions>
 
-1. Tylko logowanie (istniejące konta) jest dostępne – rejestracja nie jest przewidziana.
+1. Logowanie i rejestracja uzytkowników.
 2. Operacje na fiszkach i kolekcjach (dodawanie, edycja, usuwanie) będą dokonywane za pomocą modalów, poza ekranem dedykowanym do generowania fiszek przez AI.
 3. Usuwanie kolekcji wymaga potwierdzenia użytkownika.
 4. Puste listy (kolekcji i fiszek) będą wyświetlały komunikaty zachęcające do dodania nowych elementów.
