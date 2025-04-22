@@ -98,7 +98,8 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should destroy associated collections when user is destroyed" do
-    user = users(:one)
+    # Create a new user for this test to avoid fixture dependencies
+    user = User.create!(email_address: "testdestroy@example.com", password: "password", password_confirmation: "password")
     # Ensure associated models exist for the test
     # Replace with fixture loading if you create collection fixtures
     user.collections.create!(name: "Test Collection") # Assuming Collection requires a name
