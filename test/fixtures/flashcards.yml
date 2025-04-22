@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  front_content: MyText Front One
+  back_content: MyText Back One
+  user: one # References user 'one'
+  flashcard_type: manual
+
+two:
+  front_content: MyText Front Two
+  back_content: MyText Back Two
+  user: two # References user 'two'
+  flashcard_type: manual

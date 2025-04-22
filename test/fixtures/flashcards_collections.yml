@@ -1,0 +1,7 @@
+one:
+  flashcard: one # References flashcard 'one'
+  collection: one # References collection 'one'
+
+two:
+  flashcard: two # References flashcard 'two'
+  collection: two # References collection 'one'
