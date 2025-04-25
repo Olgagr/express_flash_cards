@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   scan_ruby:
@@ -55,6 +55,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    needs: [lint, scan_ruby, scan_js]
 
     # services:
     #  redis:
