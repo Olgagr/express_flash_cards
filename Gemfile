@@ -73,4 +73,4 @@ gem "phlex-rails", "~> 2.2", github: "phlex-ruby/phlex-rails"
 
 gem "tailwind_merge", "~> 1.2"
 
-gem "faraday", "~> 2.13"
+gem "faraday", "~> 2.14"
