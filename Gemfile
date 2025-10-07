@@ -69,7 +69,7 @@ gem "tailwindcss-rails", "~> 4.2"
 
 gem "ruby_ui", "= 1.0.0.beta1", group: :development,   require: false
 
-gem "phlex-rails", "~> 2.2", github: "phlex-ruby/phlex-rails"
+gem "phlex-rails", "~> 2.3", github: "phlex-ruby/phlex-rails"
 
 gem "tailwind_merge", "~> 1.2"
 
